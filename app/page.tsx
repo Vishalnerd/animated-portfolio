@@ -5,7 +5,7 @@ import Header from "./components/header/page";
 import DSAVisualizer from "./components/dsa/page";
 import Skills from "./components/skills/page";
 import Journey from "./components/journey/page";
-import ProjectCard from "./components/projects/page";
+import ProjectCard from "./components/projects/ProjectCard";
 import PageFlipWrapper from "./components/PageFlipWrapper";
 import Contact from "./components/contact/page";
 import SocialDoodles from "./components/SocialDoodles";
