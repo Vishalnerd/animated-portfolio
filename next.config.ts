@@ -1,7 +1,8 @@
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ["gsap"], // Crucial for GSAP to work in App Router
 };
 
 export default nextConfig;
