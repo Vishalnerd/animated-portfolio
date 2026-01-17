@@ -8,7 +8,8 @@ export default function ProjectsPage() {
       <SketchyBox className="bg-white">
         <h1 className="text-4xl font-sketch mb-4">Projects</h1>
         <p className="font-mono text-ink/70">
-          This page is accessible at /components/projects. The main project showcase is on the home page.
+          This page is accessible at /components/projects. The main project
+          showcase is on the home page.
         </p>
       </SketchyBox>
     </div>
