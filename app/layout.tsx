@@ -3,7 +3,6 @@ import { Architects_Daughter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { LenisProvider } from "@/app/components/LenisProvider";
 import CustomCursor from "@/app/components/CustomCursor";
-import SocialDoodles from "./components/SocialDoodles";
 
 const handwritten = Architects_Daughter({
   weight: "400",
@@ -40,7 +39,7 @@ export default function RootLayout({
         {/* Paper texture overlay */}
         <div className="notebook-overlay" />
         <CustomCursor />
-        <SocialDoodles />
+
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>
