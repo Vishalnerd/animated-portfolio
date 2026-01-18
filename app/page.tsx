@@ -13,7 +13,7 @@ import FoldTransition from "./components/TheFoldTransition";
 const p2 = {
   title: "DabbaNation",
   tags: ["Next.js", "Node.js", "MongoDB"],
-  image: "/dabbanation.png",
+  image: "/DabbaNation.png",
   description:
     "Local food delivery logic. A platform connecting home chefs with hungry customers, featuring real-time order tracking.",
   link: "https://dabba-nation.vercel.app/",
@@ -22,7 +22,7 @@ const p2 = {
 const p3 = {
   title: "PrintEase",
   tags: ["SaaS", "React", "Stripe"],
-  image: "/printease.png",
+  image: "/PrintEase.png",
   description:
     "SaaS for custom prints. Design and order custom merchandise with an intuitive editor and seamless payment integration.",
   link: "https://printease.vercel.app/",
