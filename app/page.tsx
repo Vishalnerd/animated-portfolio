@@ -8,7 +8,7 @@ import Journey from "./components/journey/page";
 import ProjectCard from "./components/projects/ProjectCard";
 import Contact from "./components/contact/page";
 import Footer from "./components/footer/page";
-import FoldTransition from "./components/TheFoldTransition";
+import UnrollTransition from "./components/UnrollTransition";
 
 const p2 = {
   title: "DabbaNation",
@@ -33,35 +33,30 @@ export default function Home() {
     <main className="notebook-bg min-h-screen">
       <Header />
 
-      {/* CHAPTER 1: THE SKETCHBOOK (White Paper) */}
-      <div className=" pb-20">
+      {/* SECTION 1: JOURNEY */}
+      <div className="">
         <Hero />
         <DSAVisualizer />
         <Skills />
         <Journey />
       </div>
 
-      {/* THE BRIDGE: THE ACCORDION FOLD */}
-      <FoldTransition />
-
-      {/* CHAPTER 2: THE WORKBENCH (Gray/Grid Surface) */}
-      <section id="projects" className="py-40 min-h-screen">
-        <div className="max-w-6xl mx-auto px-6">
-          {/* Your Rough/Sketchy Project Cards */}
-          <div className="flex flex-col gap-40">
-            <div className="flex justify-end">
-              <ProjectCard {...p2} />
-            </div>
-            <div className="flex justify-center">
-              <ProjectCard {...p3} />
-            </div>
-          </div>
+      {/* SECTION 2: THE PINNED TRANSITION & PROJECTS */}
+      {/* This section will take over the screen, pin, and then release */}
+      <UnrollTransition>
+        <div className="project-reveal-item w-full flex justify-center md:justify-start">
+          <ProjectCard {...p2} />
         </div>
-      </section>
+        <div className="project-reveal-item w-full flex justify-center md:justify-end">
+          <ProjectCard {...p3} />
+        </div>
+      </UnrollTransition>
 
-      {/* CHAPTER 3: THE LEGAL PAD */}
-      <Contact />
-      <Footer />
+      {/* Ensure Contact/Footer sits on top after the pin releases */}
+      <section className="relative z-20 ">
+        <Contact />
+        <Footer />
+      </section>
     </main>
   );
 }

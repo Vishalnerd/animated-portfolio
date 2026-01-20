@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -45,58 +45,94 @@ const MILESTONES = [
 export default function Journey() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const penTipRef = useRef<SVGCircleElement>(null);
   const finalMsgRef = useRef<HTMLDivElement>(null);
   const [svgHeight, setSvgHeight] = useState(0);
 
-  // Update SVG height on mount and resize
+  // 1. Update height with a small delay to ensure DOM is settled
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
         setSvgHeight(containerRef.current.offsetHeight);
       }
     };
-    updateHeight();
+    // Initial call
+    setTimeout(updateHeight, 100);
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
+  // 2. Memoize path to prevent jittery recalculations during scroll
+  const pathD = useMemo(() => {
+    if (svgHeight === 0) return "";
+    return `M 500 0 
+            C 800 ${svgHeight * 0.2}, 200 ${svgHeight * 0.4}, 500 ${svgHeight * 0.5} 
+            S 800 ${svgHeight * 0.8}, 500 ${svgHeight}`;
+  }, [svgHeight]);
+
   useGSAP(
     () => {
       const path = pathRef.current;
+      const penTip = penTipRef.current;
       if (!path || svgHeight === 0) return;
 
       const length = path.getTotalLength();
-      gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
 
-      // 1. Line Drawing Animation
-      gsap.to(path, {
-        strokeDashoffset: 0,
-        ease: "none",
+      // Set initial state
+      gsap.set(path, {
+        strokeDasharray: length,
+        strokeDashoffset: length,
+        visibility: "visible",
+      });
+
+      // 1. Smooth Drawing Timeline
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top center",
           end: "bottom center",
-          scrub: 0.5,
+          scrub: 1.5, // Increased scrub for "ink weight" feel
           invalidateOnRefresh: true,
         },
       });
 
+      tl.to(path, {
+        strokeDashoffset: 0,
+        ease: "none",
+      });
+
+      // Move the pen tip along the path
+      if (penTip) {
+        tl.to(
+          penTip,
+          {
+            motionPath: {
+              path: path,
+              align: path,
+              alignOrigin: [0.5, 0.5],
+            },
+            ease: "none",
+          },
+          0,
+        ); // Start at the same time as the line
+      }
+
       // 2. Milestone Staggered Entrance
       MILESTONES.forEach((_, i) => {
         gsap.from(`.milestone-${i}`, {
-          x: i % 2 === 0 ? -50 : 50,
+          x: i % 2 === 0 ? -80 : 80,
           opacity: 0,
-          scale: 0.9,
-          duration: 1,
+          rotate: i % 2 === 0 ? -5 : 5,
+          duration: 1.2,
           scrollTrigger: {
             trigger: `.milestone-${i}`,
-            start: "top 80%",
+            start: "top 85%",
             toggleActions: "play none none reverse",
           },
         });
       });
 
-      // 3. Underline animation for the final message
+      // 3. Final Underline
       gsap.from(".final-underline", {
         scaleX: 0,
         transformOrigin: "left",
@@ -107,20 +143,15 @@ export default function Journey() {
         },
       });
     },
-    { scope: containerRef, dependencies: [svgHeight] },
+    { scope: containerRef, dependencies: [svgHeight, pathD] },
   );
-
-  // Improved Path: A winding vertical line that works across various heights
-  const pathD = `M 500 0 
-                C 800 ${svgHeight * 0.2}, 200 ${svgHeight * 0.4}, 500 ${svgHeight * 0.5} 
-                S 800 ${svgHeight * 0.8}, 500 ${svgHeight}`;
 
   return (
     <section
       ref={containerRef}
-      className="py-20 md:py-40 relative w-full max-w-5xl mx-auto overflow-visible px-6 min-h-[200vh]"
+      className="py-16 md:py-40 relative w-full max-w-5xl mx-auto overflow-visible px-4 md:px-6 min-h-[180vh] md:min-h-[250vh]"
     >
-      <h2 className="text-5xl md:text-7xl font-sketch text-center mb-40">
+      <h2 className="text-4xl md:text-5xl lg:text-8xl font-sketch text-center mb-32 md:mb-60">
         The Journey
       </h2>
 
@@ -133,9 +164,9 @@ export default function Journey() {
             viewBox={`0 0 1000 ${svgHeight}`}
             fill="none"
             className="overflow-visible"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="none"
           >
-            {/* Faint Background Guide Line */}
+            {/* Guide Line */}
             <path
               d={pathD}
               stroke="#1A1A1A"
@@ -143,21 +174,32 @@ export default function Journey() {
               strokeDasharray="12,12"
               className="opacity-5"
             />
-            {/* Animated Blue Line */}
+            {/* Animated Blue Ink Line */}
             <path
               ref={pathRef}
               d={pathD}
               stroke="#0055FF"
               strokeWidth="6"
               strokeLinecap="round"
-              className="drop-shadow-[0_0_8px_rgba(0,85,255,0.3)]"
+              style={{
+                willChange: "stroke-dashoffset",
+                transform: "translateZ(0)",
+              }}
+              className="drop-shadow-[0_0_12px_rgba(0,85,255,0.4)]"
+            />
+            {/* Floating Pen Tip */}
+            <circle
+              ref={penTipRef}
+              r="8"
+              fill="#0055FF"
+              className="drop-shadow-[0_0_15px_rgba(0,85,255,0.8)]"
             />
           </svg>
         </div>
       )}
 
       {/* Milestones Container */}
-      <div className="flex flex-col gap-40 md:gap-72 relative">
+      <div className="flex flex-col gap-32 md:gap-60 lg:gap-96 relative z-10">
         {MILESTONES.map((m, i) => (
           <div
             key={i}
@@ -166,26 +208,29 @@ export default function Journey() {
             }`}
           >
             <div className="relative group max-w-md w-full">
-              {/* Handwritten Note (Hover) */}
-              <div className="absolute -top-14 left-0 md:-left-10 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-2 group-hover:translate-y-0 z-30">
-                <p className="font-sketch text-blueprint text-sm md:text-lg whitespace-nowrap bg-marker/10 px-3 py-1 rotate-[-2deg] border-2 border-blueprint/20 rounded-lg">
+              <div className="absolute -top-12 md:-top-16 left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-2 group-hover:translate-y-0 z-30">
+                <p className="font-sketch text-blueprint text-sm md:text-lg lg:text-xl whitespace-nowrap bg-[#FFF9C4] px-3 py-1.5 md:px-4 md:py-2 rotate-[-3deg] border-2 border-ink shadow-lg">
                   {m.note}
                 </p>
               </div>
 
               <SketchyBox
                 color={m.color}
-                className="bg-white shadow-xl hover:shadow-2xl transition-shadow"
+                className="bg-white shadow-2xl hover:translate-y-[-5px] transition-all duration-300 p-4 md:p-6"
               >
-                <div className="flex items-center gap-5 mb-4">
-                  <div className="p-3 bg-paper rounded-xl border-2 border-ink">
-                    <m.Icon size={32} style={{ color: m.color }} />
+                <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-6">
+                  <div className="p-2 md:p-4 bg-paper rounded-xl md:rounded-2xl border-2 border-ink shadow-inner">
+                    <m.Icon
+                      size={28}
+                      className="md:w-9 md:h-9"
+                      style={{ color: m.color }}
+                    />
                   </div>
-                  <h4 className="text-2xl md:text-3xl font-sketch leading-none">
+                  <h4 className="text-2xl md:text-3xl lg:text-4xl font-sketch leading-none">
                     {m.title}
                   </h4>
                 </div>
-                <p className="text-sm font-mono text-ink/60 leading-relaxed">
+                <p className="text-sm md:text-base font-mono text-ink/70 leading-relaxed border-l-4 border-ink/10 pl-3 md:pl-4">
                   {m.desc}
                 </p>
               </SketchyBox>
@@ -196,18 +241,19 @@ export default function Journey() {
         {/* Final Message */}
         <div
           ref={finalMsgRef}
-          className="flex flex-col items-center mt-20 text-center"
+          className="flex flex-col items-center mt-20 md:mt-40 text-center pb-10 md:pb-20"
         >
-          <h3 className="text-4xl md:text-5xl font-sketch text-ink relative">
+          <h3 className="text-3xl md:text-5xl lg:text-7xl font-sketch text-ink relative inline-block px-4">
             ...not over yet
             <svg
-              className="final-underline absolute -bottom-4 left-0 w-full h-4 overflow-visible"
+              className="final-underline absolute -bottom-4 md:-bottom-6 left-0 w-full h-4 md:h-6 overflow-visible"
               viewBox="0 0 200 20"
             >
               <path
                 d="M0 10 Q 50 0, 100 10 T 200 10"
                 stroke="#0055FF"
                 strokeWidth="6"
+                className="md:stroke-[8]"
                 strokeLinecap="round"
                 fill="none"
               />

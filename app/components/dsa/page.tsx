@@ -86,11 +86,17 @@ export default function DSAVisualizer() {
   };
 
   return (
-    <div ref={containerRef} className="max-w-3xl mx-auto my-12 md:my-20 px-4">
-      <SketchyBox color="#0055FF" className="bg-white p-6 md:p-10 shadow-xl">
-        <div className="flex justify-between items-start mb-8">
-          <h2 className="text-2xl md:text-3xl font-sketch">
-            Algorithm Scribble: BubbleSort
+    <div
+      ref={containerRef}
+      className="max-w-3xl mx-auto my-8 md:my-12 lg:my-20 px-4"
+    >
+      <SketchyBox
+        color="#0055FF"
+        className="bg-white p-4 md:p-6 lg:p-10 shadow-xl"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-sketch">
+            Algorithm: BubbleSort
           </h2>
           <button
             onClick={resetArray}
@@ -100,15 +106,15 @@ export default function DSAVisualizer() {
           </button>
         </div>
 
-        <div className="flex items-end justify-center gap-3 md:gap-6 h-56 mb-10 border-b-2 border-dashed border-ink/10 pb-2">
+        <div className="flex items-end justify-center gap-2 md:gap-3 lg:gap-6 h-48 md:h-56 mb-8 md:mb-10 border-b-2 border-dashed border-ink/10 pb-2">
           {array.map((value, idx) => (
             <div
               key={idx}
-              className="bar w-8 md:w-10 bg-ink rounded-t-sm relative transition-all"
+              className="bar w-6 md:w-8 lg:w-10 bg-ink rounded-t-sm relative transition-all"
               style={{ height: `${value}%` }}
             >
               {/* Value Label */}
-              <span className="absolute -top-7 left-1/2 -translate-x-1/2 font-mono text-[10px] md:text-xs font-bold text-blueprint">
+              <span className="absolute -top-6 md:-top-7 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] lg:text-xs font-bold text-blueprint">
                 {value}
               </span>
 
@@ -120,12 +126,12 @@ export default function DSAVisualizer() {
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-6">
           <div className="space-y-1">
-            <p className="font-mono text-xs md:text-sm text-ink/60">
+            <p className="font-mono text-[10px] md:text-xs lg:text-sm text-ink/60">
               <span className="text-blueprint font-bold">Time:</span> O(n²)
             </p>
-            <p className="font-mono text-xs md:text-sm text-ink/60">
+            <p className="font-mono text-[10px] md:text-xs lg:text-sm text-ink/60">
               <span className="text-blueprint font-bold">Space:</span> O(1)
             </p>
           </div>
@@ -133,7 +139,7 @@ export default function DSAVisualizer() {
           <button
             onClick={bubbleSort}
             disabled={isSorting}
-            className={`relative group px-10 py-3 font-sketch text-lg overflow-hidden transition-all
+            className={`relative group px-6 md:px-10 py-2.5 md:py-3 font-sketch text-base md:text-lg overflow-hidden transition-all
               ${isSorting ? "cursor-not-allowed opacity-50" : "hover:rotate-1 active:scale-95"}
             `}
           >

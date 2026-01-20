@@ -66,36 +66,40 @@ export default function Contact() {
   return (
     <section
       ref={containerRef}
-      className="py-20 md:py-40 px-4 flex justify-center items-center relative overflow-hidden "
+      className="py-16 md:py-20 lg:py-40 px-4 flex justify-center items-center relative overflow-hidden"
     >
       {/* Background Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/recycled-paper-texture.png')]" />
 
-      <div className="contact-paper relative w-full max-w-xl bg-[#FFF9C4] p-8 md:p-14 shadow-2xl border-l-[12px] md:border-l-[20px] border-red-200 rotate-[-1deg] transition-all duration-500 hover:rotate-0">
+      <div className="contact-paper relative w-full max-w-xl bg-[#FFF9C4] p-6 md:p-8 lg:p-14 shadow-2xl border-l-[8px] md:border-l-[12px] lg:border-l-[20px] border-red-200 rotate-[-1deg] transition-all duration-500 hover:rotate-0">
         {/* Washi Tape */}
         <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-32 h-10 bg-blueprint/20 backdrop-blur-sm -rotate-2 border border-blueprint/10 shadow-sm" />
 
-        <h2 className="text-4xl md:text-5xl font-sketch text-ink mb-12 underline decoration-wavy decoration-red-400/30 underline-offset-8">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-sketch text-ink mb-8 md:mb-12 underline decoration-wavy decoration-red-400/30 underline-offset-8">
           Drop a Note.
         </h2>
 
         {status === "sent" ? (
-          <div className="py-20 text-center relative overflow-hidden">
-            <div className="success-stamp border-8 border-double border-blueprint text-blueprint font-sketch text-5xl md:text-7xl p-6 uppercase mix-blend-multiply opacity-0 inline-block mb-8">
+          <div className="py-12 md:py-20 text-center relative overflow-hidden">
+            <div className="success-stamp border-4 md:border-8 border-double border-blueprint text-blueprint font-sketch text-4xl md:text-5xl lg:text-7xl p-4 md:p-6 uppercase mix-blend-multiply opacity-0 inline-block mb-6 md:mb-8">
               APPROVED
             </div>
-            <p className="font-sketch text-2xl text-ink/60">
+            <p className="font-sketch text-xl md:text-2xl text-ink/60">
               Message logged successfully.
             </p>
             <button
               onClick={() => setStatus("idle")}
-              className="mt-8 font-mono text-xs underline opacity-40 hover:opacity-100"
+              className="mt-6 md:mt-8 font-mono text-xs underline opacity-40 hover:opacity-100"
             >
               [ WRITE ANOTHER ]
             </button>
           </div>
         ) : (
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-12">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="space-y-8 md:space-y-12"
+          >
             {[
               {
                 id: "name",
@@ -130,7 +134,7 @@ export default function Contact() {
                     required
                     onFocus={() => setFocusedField(field.id)}
                     onBlur={() => setFocusedField(null)}
-                    className="bg-transparent border-none outline-none w-full font-sketch text-2xl placeholder:opacity-10 text-ink"
+                    className="bg-transparent border-none outline-none w-full font-sketch text-lg md:text-2xl placeholder:opacity-10 text-ink"
                   />
                 </div>
               </div>
@@ -154,7 +158,7 @@ export default function Contact() {
                   required
                   onFocus={() => setFocusedField("msg")}
                   onBlur={() => setFocusedField(null)}
-                  className="bg-transparent border-none outline-none w-full font-sketch text-2xl placeholder:opacity-10 text-ink resize-none leading-relaxed"
+                  className="bg-transparent border-none outline-none w-full font-sketch text-lg md:text-2xl placeholder:opacity-10 text-ink resize-none leading-relaxed"
                 />
               </div>
             </div>
@@ -162,9 +166,9 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "sending"}
-              className="w-full py-5 bg-ink text-paper font-sketch text-2xl group relative overflow-hidden active:scale-95 transition-all shadow-xl"
+              className="w-full py-4 md:py-5 bg-ink text-paper font-sketch text-xl md:text-2xl group relative overflow-hidden active:scale-95 transition-all shadow-xl"
             >
-              <span className="relative z-10 flex items-center justify-center gap-4">
+              <span className="relative z-10 flex items-center justify-center gap-3 md:gap-4">
                 {status === "sending" ? "SHIPPING..." : "STAMP & SEND"}
                 <Send
                   size={20}

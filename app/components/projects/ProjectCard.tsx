@@ -31,15 +31,18 @@ export default function ProjectCard({
 
   useGSAP(
     () => {
-      // Subtle float animation
-      gsap.to(containerRef.current, {
-        y: -10,
-        rotation: "+=1",
-        duration: 3,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
+      const isMobile = window.innerWidth < 768;
+      // Reduce or disable float animation on mobile for better performance
+      if (!isMobile) {
+        gsap.to(containerRef.current, {
+          y: -10,
+          rotation: "+=1",
+          duration: 3,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      }
     },
     { scope: containerRef },
   );
@@ -51,14 +54,17 @@ export default function ProjectCard({
       style={{ transform: `rotate(${rotation}deg)` }}
     >
       {/* Messy Tape at Top */}
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-10 bg-blueprint/20 backdrop-blur-sm -rotate-2 z-30 border-x-2 border-blueprint/10 shadow-sm" />
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-10 bg-[#eef2ff]/40 backdrop-blur-md -rotate-2 z-30 border-x-2 border-white/20 shadow-sm">
+        {/* Add a little "texture" to the tape */}
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]" />
+      </div>
 
       <SketchyBox
         color="#1A1A1A"
-        className="bg-white p-6 md:p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-[16px_16px_0px_0px_rgba(0,85,255,1)] transition-all duration-300"
+        className="bg-white p-4 md:p-6 lg:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] md:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,85,255,1)] md:hover:shadow-[16px_16px_0px_0px_rgba(0,85,255,1)] transition-all duration-300"
       >
         {/* Project Image "Draft" */}
-        <div className="relative aspect-video mb-6 border-2 border-ink overflow-hidden bg-gray-50">
+        <div className="relative aspect-video mb-4 md:mb-6 border-2 border-ink overflow-hidden bg-gray-50">
           <img
             src={image}
             alt={title}
@@ -69,8 +75,8 @@ export default function ProjectCard({
         </div>
 
         {/* Project Header with Red Pen Correction */}
-        <div className="relative mb-4">
-          <h3 className="text-3xl font-sketch text-ink relative inline-block">
+        <div className="relative mb-3 md:mb-4">
+          <h3 className="text-2xl md:text-3xl font-sketch text-ink relative inline-block">
             {title}
             <svg className="absolute -bottom-2 left-0 w-full h-2 overflow-visible">
               <path
@@ -87,12 +93,12 @@ export default function ProjectCard({
           </p>
         </div>
 
-        <p className="font-sketch text-lg text-ink/70 leading-snug mb-6">
+        <p className="font-sketch text-base md:text-lg text-ink/70 leading-snug mb-4 md:mb-6">
           {description}
         </p>
 
         {/* Stack Tags as "Post-it" Scribbles */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6">
           {tags.map((tag) => (
             <span
               key={tag}
