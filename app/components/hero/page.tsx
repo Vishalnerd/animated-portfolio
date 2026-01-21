@@ -54,7 +54,7 @@ export default function Hero() {
   return (
     <section
       ref={container}
-      className="relative max-w-5xl mx-auto mb-20 md:mb-40 px-4 md:px-6 lg:px-0 pt-10 md:pt-20"
+      className="relative max-w-5xl mx-auto mb-20 md:mb-40 px-4 md:px-6 lg:px-0 pt-20 md:pt-20 "
     >
       {/* Decorative Washi Tape (Hidden on mobile for clarity) */}
       <div className="hidden md:block absolute -top-10 left-0 w-32 h-10 bg-marker/20 -rotate-6 opacity-50 pointer-events-none" />

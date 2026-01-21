@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { SketchyBox } from "../ui/SketchyBox";
 
 export default function DSAVisualizer() {
-  const [array, setArray] = useState([60, 40, 80, 30, 90, 50, 70]);
+  // Reduced initial array size for mobile clarity
+  const [array, setArray] = useState([60, 40, 80, 30, 90, 50]);
   const [isSorting, setIsSorting] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { contextSafe } = useGSAP({ scope: containerRef });
 
-  // Helper to wait for animation
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -27,111 +27,100 @@ export default function DSAVisualizer() {
 
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n - i - 1; j++) {
-        // 1. Highlight Comparison
-        const tl = gsap.timeline();
-        tl.to([bars[j], bars[j + 1]], {
-          backgroundColor: "#FFD700", // Marker Yellow
-          scale: 1.1,
+        // Highlight Comparison
+        gsap.to([bars[j], bars[j + 1]], {
+          backgroundColor: "#FFD700",
+          scale: 1.05, // Subtle scale for mobile stability
           duration: 0.2,
         });
 
-        await sleep(250);
+        await sleep(300); // Slightly slower for better visual tracking on small screens
 
         if (tempArray[j] > tempArray[j + 1]) {
-          // 2. Swap Logic
           [tempArray[j], tempArray[j + 1]] = [tempArray[j + 1], tempArray[j]];
 
-          // Calculate distance for swap
           const distance =
             bars[j + 1].getBoundingClientRect().left -
             bars[j].getBoundingClientRect().left;
 
-          // Animate Swap
           await Promise.all([
             gsap.to(bars[j], {
               x: distance,
-              duration: 0.4,
+              duration: 0.3,
               ease: "power2.inOut",
             }),
             gsap.to(bars[j + 1], {
               x: -distance,
-              duration: 0.4,
+              duration: 0.3,
               ease: "power2.inOut",
             }),
           ]);
 
-          // 3. Reset positions and Update State
-          // We set x to 0 immediately before state update to prevent "jumping"
           gsap.set([bars[j], bars[j + 1]], { x: 0 });
           setArray([...tempArray]);
         }
 
-        // 4. Reset Highlight
         gsap.to([bars[j], bars[j + 1]], {
           backgroundColor: "#1A1A1A",
           scale: 1,
           duration: 0.2,
         });
       }
-
-      // Mark last element as "Sorted"
+      // Sorted color
       gsap.to(bars[n - i - 1], { backgroundColor: "#0055FF", opacity: 0.8 });
     }
     setIsSorting(false);
   });
 
   const resetArray = () => {
-    setArray([60, 40, 80, 30, 90, 50, 70]);
+    setArray([60, 40, 80, 30, 90, 50]);
     gsap.to(".bar", { backgroundColor: "#1A1A1A", opacity: 1 });
   };
 
   return (
     <div
       ref={containerRef}
-      className="max-w-3xl mx-auto my-8 md:my-12 lg:my-20 px-4"
+      className="w-full max-w-2xl mx-auto my-12 px-2 md:px-4"
     >
-      <SketchyBox
-        color="#0055FF"
-        className="bg-white p-4 md:p-6 lg:p-10 shadow-xl"
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0 mb-6 md:mb-8">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-sketch">
-            Algorithm: BubbleSort
+      <SketchyBox color="#0055FF" className="bg-white p-4 md:p-8 shadow-xl">
+        {/* Header: Stacked on small mobile, row on tablet */}
+        <div className="flex flex-row justify-between items-center mb-6">
+          <h2 className="text-lg md:text-2xl font-sketch leading-none">
+            BubbleSort
           </h2>
           <button
             onClick={resetArray}
-            className="text-xs font-mono underline opacity-50 hover:opacity-100"
+            className="text-[10px] font-mono underline opacity-50 px-2 py-1 active:bg-ink/5 rounded"
           >
             [reset]
           </button>
         </div>
 
-        <div className="flex items-end justify-center gap-2 md:gap-3 lg:gap-6 h-48 md:h-56 mb-8 md:mb-10 border-b-2 border-dashed border-ink/10 pb-2">
+        {/* Visualizer Area: Flex-nowrap with responsive gaps */}
+        <div className="flex items-end justify-center gap-1.5 xs:gap-2 md:gap-4 h-40 md:h-56 mb-8 border-b-2 border-dashed border-ink/10 pb-1">
           {array.map((value, idx) => (
             <div
               key={idx}
-              className="bar w-6 md:w-8 lg:w-10 bg-ink rounded-t-sm relative transition-all"
+              className="bar flex-1 max-w-[40px] bg-ink rounded-t-sm relative will-change-transform"
               style={{ height: `${value}%` }}
             >
-              {/* Value Label */}
-              <span className="absolute -top-6 md:-top-7 left-1/2 -translate-x-1/2 font-mono text-[9px] md:text-[10px] lg:text-xs font-bold text-blueprint">
+              <span className="absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-[8px] md:text-[10px] font-bold text-blueprint">
                 {value}
               </span>
-
-              {/* Sketchy "Lead" Texture overlay */}
-              <div className="absolute inset-0 opacity-20 pointer-events-none overflow-hidden">
-                <div className="w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,#fff_2px,#fff_3px)]" />
+              <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden">
+                <div className="w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_1px,#fff_1px,#fff_2px)]" />
               </div>
             </div>
           ))}
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-6">
-          <div className="space-y-1">
-            <p className="font-mono text-[10px] md:text-xs lg:text-sm text-ink/60">
+        {/* Info & Button: Vertical stack on mobile to prevent squishing */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex gap-4 md:flex-col md:gap-1">
+            <p className="font-mono text-[10px] md:text-xs text-ink/60">
               <span className="text-blueprint font-bold">Time:</span> O(n²)
             </p>
-            <p className="font-mono text-[10px] md:text-xs lg:text-sm text-ink/60">
+            <p className="font-mono text-[10px] md:text-xs text-ink/60">
               <span className="text-blueprint font-bold">Space:</span> O(1)
             </p>
           </div>
@@ -139,15 +128,14 @@ export default function DSAVisualizer() {
           <button
             onClick={bubbleSort}
             disabled={isSorting}
-            className={`relative group px-6 md:px-10 py-2.5 md:py-3 font-sketch text-base md:text-lg overflow-hidden transition-all
-              ${isSorting ? "cursor-not-allowed opacity-50" : "hover:rotate-1 active:scale-95"}
+            className={`w-full md:w-auto relative group px-8 py-3 font-sketch text-base transition-all
+              ${isSorting ? "cursor-not-allowed opacity-50" : "active:scale-95"}
             `}
           >
             <span className="relative z-10">
-              {isSorting ? "Sorting..." : "Run Algorithm"}
+              {isSorting ? "Sorting..." : "Run"}
             </span>
-            {/* Sketchy Button Background */}
-            <div className="absolute inset-0 border-2 border-ink bg-marker -rotate-1 group-hover:rotate-0 transition-transform" />
+            <div className="absolute inset-0 border-2 border-ink bg-marker -rotate-1 group-active:rotate-0 transition-transform" />
           </button>
         </div>
       </SketchyBox>

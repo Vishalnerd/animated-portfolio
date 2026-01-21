@@ -16,7 +16,7 @@ const MILESTONES = [
     title: "Schooling",
     Icon: BookOpen,
     color: "#1A1A1A",
-    note: "Found my love for logic here!",
+    note: "Found my love for logic!",
     desc: "Built my first basic calculator at 14.",
   },
   {
@@ -24,20 +24,20 @@ const MILESTONES = [
     Icon: Zap,
     color: "#FFD700",
     note: "18 hours/day grind!",
-    desc: "Mastered the art of consistency and problem solving.",
+    desc: "Mastered the art of problem solving.",
   },
   {
     title: "Joined DTU",
     Icon: GraduationCap,
     color: "#0055FF",
-    note: "Delhi Tech University vibes.",
+    note: "DTU vibes.",
     desc: "Computer Science major, deep diving into systems.",
   },
   {
     title: "Startup Life",
     Icon: Rocket,
     color: "#1A1A1A",
-    note: "Fast-paced & high impact.",
+    note: "Fast-paced impact.",
     desc: "Building scalable solutions in the real world.",
   },
 ];
@@ -49,25 +49,27 @@ export default function Journey() {
   const finalMsgRef = useRef<HTMLDivElement>(null);
   const [svgHeight, setSvgHeight] = useState(0);
 
-  // 1. Update height with a small delay to ensure DOM is settled
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
         setSvgHeight(containerRef.current.offsetHeight);
       }
     };
-    // Initial call
+    // Re-calculate on mount and resize for mobile address bar shifts
     setTimeout(updateHeight, 100);
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
-  // 2. Memoize path to prevent jittery recalculations during scroll
+  // Responsive Path: On mobile, the curve is less aggressive to prevent text overlap
   const pathD = useMemo(() => {
     if (svgHeight === 0) return "";
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    const curveWidth = isMobile ? 150 : 300; // Narrower winding for mobile
+
     return `M 500 0 
-            C 800 ${svgHeight * 0.2}, 200 ${svgHeight * 0.4}, 500 ${svgHeight * 0.5} 
-            S 800 ${svgHeight * 0.8}, 500 ${svgHeight}`;
+            C ${500 + curveWidth} ${svgHeight * 0.2}, ${500 - curveWidth} ${svgHeight * 0.4}, 500 ${svgHeight * 0.5} 
+            S ${500 + curveWidth} ${svgHeight * 0.8}, 500 ${svgHeight}`;
   }, [svgHeight]);
 
   useGSAP(
@@ -77,68 +79,57 @@ export default function Journey() {
       if (!path || svgHeight === 0) return;
 
       const length = path.getTotalLength();
+      const isMobile = window.innerWidth < 768;
 
-      // Set initial state
       gsap.set(path, {
         strokeDasharray: length,
         strokeDashoffset: length,
         visibility: "visible",
       });
 
-      // 1. Smooth Drawing Timeline
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top center",
           end: "bottom center",
-          scrub: 1.5, // Increased scrub for "ink weight" feel
+          scrub: isMobile ? 1 : 1.5, // Faster scrub on mobile for better responsiveness
           invalidateOnRefresh: true,
         },
       });
 
-      tl.to(path, {
-        strokeDashoffset: 0,
-        ease: "none",
-      });
+      tl.to(path, { strokeDashoffset: 0, ease: "none" });
 
-      // Move the pen tip along the path
       if (penTip) {
         tl.to(
           penTip,
           {
-            motionPath: {
-              path: path,
-              align: path,
-              alignOrigin: [0.5, 0.5],
-            },
+            motionPath: { path: path, align: path, alignOrigin: [0.5, 0.5] },
             ease: "none",
           },
           0,
-        ); // Start at the same time as the line
+        );
       }
 
-      // 2. Milestone Staggered Entrance
       MILESTONES.forEach((_, i) => {
         gsap.from(`.milestone-${i}`, {
-          x: i % 2 === 0 ? -80 : 80,
+          x: i % 2 === 0 ? (isMobile ? -30 : -80) : isMobile ? 30 : 80,
           opacity: 0,
-          rotate: i % 2 === 0 ? -5 : 5,
-          duration: 1.2,
+          rotate: i % 2 === 0 ? -3 : 3,
+          duration: 1,
           scrollTrigger: {
             trigger: `.milestone-${i}`,
-            start: "top 85%",
+            start: "top 90%", // Trigger slightly later on mobile
             toggleActions: "play none none reverse",
           },
         });
       });
 
-      // 3. Final Underline
       gsap.from(".final-underline", {
         scaleX: 0,
         transformOrigin: "left",
         scrollTrigger: {
           trigger: finalMsgRef.current,
-          start: "top 90%",
+          start: "top 95%",
           scrub: true,
         },
       });
@@ -149,13 +140,12 @@ export default function Journey() {
   return (
     <section
       ref={containerRef}
-      className="py-16 md:py-40 relative w-full max-w-5xl mx-auto overflow-visible px-4 md:px-6 min-h-[180vh] md:min-h-[250vh]"
+      className="py-12 md:py-40 relative w-full max-w-5xl mx-auto overflow-hidden px-4 md:px-6 min-h-[160vh] md:min-h-[250vh]"
     >
-      <h2 className="text-4xl md:text-5xl lg:text-8xl font-sketch text-center mb-32 md:mb-60">
+      <h2 className="text-4xl md:text-8xl font-sketch text-center mb-24 md:mb-60">
         The Journey
       </h2>
 
-      {/* SVG Background Layer */}
       {svgHeight > 0 && (
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
           <svg
@@ -166,40 +156,40 @@ export default function Journey() {
             className="overflow-visible"
             preserveAspectRatio="none"
           >
-            {/* Guide Line */}
             <path
               d={pathD}
               stroke="#1A1A1A"
               strokeWidth="2"
-              strokeDasharray="12,12"
+              strokeDasharray="8,8"
               className="opacity-5"
             />
-            {/* Animated Blue Ink Line */}
             <path
               ref={pathRef}
               d={pathD}
               stroke="#0055FF"
-              strokeWidth="6"
+              strokeWidth={
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? "4"
+                  : "6"
+              }
               strokeLinecap="round"
-              style={{
-                willChange: "stroke-dashoffset",
-                transform: "translateZ(0)",
-              }}
-              className="drop-shadow-[0_0_12px_rgba(0,85,255,0.4)]"
+              className="drop-shadow-[0_0_8px_rgba(0,85,255,0.4)]"
             />
-            {/* Floating Pen Tip */}
             <circle
               ref={penTipRef}
-              r="8"
+              r={
+                typeof window !== "undefined" && window.innerWidth < 768
+                  ? "5"
+                  : "8"
+              }
               fill="#0055FF"
-              className="drop-shadow-[0_0_15px_rgba(0,85,255,0.8)]"
+              className="drop-shadow-[0_0_10px_rgba(0,85,255,0.8)]"
             />
           </svg>
         </div>
       )}
 
-      {/* Milestones Container */}
-      <div className="flex flex-col gap-32 md:gap-60 lg:gap-96 relative z-10">
+      <div className="flex flex-col gap-24 md:gap-96 relative z-10">
         {MILESTONES.map((m, i) => (
           <div
             key={i}
@@ -207,30 +197,31 @@ export default function Journey() {
               i % 2 === 0 ? "justify-start" : "justify-end"
             }`}
           >
-            <div className="relative group max-w-md w-full">
-              <div className="absolute -top-12 md:-top-16 left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-2 group-hover:translate-y-0 z-30">
-                <p className="font-sketch text-blueprint text-sm md:text-lg lg:text-xl whitespace-nowrap bg-[#FFF9C4] px-3 py-1.5 md:px-4 md:py-2 rotate-[-3deg] border-2 border-ink shadow-lg">
+            <div className="relative group w-full max-w-[280px] sm:max-w-md">
+              {/* Note: Simplified positioning for mobile */}
+              <div className="absolute -top-10 left-0 opacity-0 group-hover:opacity-100 transition-all duration-300 z-30">
+                <p className="font-sketch text-blueprint text-xs md:text-xl whitespace-nowrap bg-[#FFF9C4] px-2 py-1 rotate-[-3deg] border border-ink shadow-md">
                   {m.note}
                 </p>
               </div>
 
               <SketchyBox
                 color={m.color}
-                className="bg-white shadow-2xl hover:translate-y-[-5px] transition-all duration-300 p-4 md:p-6"
+                className="bg-white shadow-xl p-4 md:p-6"
               >
-                <div className="flex items-center gap-3 md:gap-6 mb-4 md:mb-6">
-                  <div className="p-2 md:p-4 bg-paper rounded-xl md:rounded-2xl border-2 border-ink shadow-inner">
+                <div className="flex items-center gap-3 md:gap-6 mb-3 md:mb-6">
+                  <div className="p-2 md:p-4 bg-paper rounded-xl border-2 border-ink shadow-inner">
                     <m.Icon
-                      size={28}
+                      size={20}
                       className="md:w-9 md:h-9"
                       style={{ color: m.color }}
                     />
                   </div>
-                  <h4 className="text-2xl md:text-3xl lg:text-4xl font-sketch leading-none">
+                  <h4 className="text-xl md:text-4xl font-sketch leading-none">
                     {m.title}
                   </h4>
                 </div>
-                <p className="text-sm md:text-base font-mono text-ink/70 leading-relaxed border-l-4 border-ink/10 pl-3 md:pl-4">
+                <p className="text-xs md:text-base font-mono text-ink/70 leading-relaxed border-l-2 md:border-l-4 border-ink/10 pl-3 md:pl-4">
                   {m.desc}
                 </p>
               </SketchyBox>
@@ -238,22 +229,20 @@ export default function Journey() {
           </div>
         ))}
 
-        {/* Final Message */}
         <div
           ref={finalMsgRef}
-          className="flex flex-col items-center mt-20 md:mt-40 text-center pb-10 md:pb-20"
+          className="flex flex-col items-center mt-20 text-center pb-10"
         >
-          <h3 className="text-3xl md:text-5xl lg:text-7xl font-sketch text-ink relative inline-block px-4">
+          <h3 className="text-2xl md:text-7xl font-sketch text-ink relative inline-block">
             ...not over yet
             <svg
-              className="final-underline absolute -bottom-4 md:-bottom-6 left-0 w-full h-4 md:h-6 overflow-visible"
+              className="final-underline absolute -bottom-3 left-0 w-full h-4 overflow-visible"
               viewBox="0 0 200 20"
             >
               <path
                 d="M0 10 Q 50 0, 100 10 T 200 10"
                 stroke="#0055FF"
-                strokeWidth="6"
-                className="md:stroke-[8]"
+                strokeWidth="4"
                 strokeLinecap="round"
                 fill="none"
               />
