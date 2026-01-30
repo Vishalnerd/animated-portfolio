@@ -8,7 +8,6 @@ import Journey from "./components/journey/page";
 import ProjectCard from "./components/projects/ProjectCard";
 import Contact from "./components/contact/page";
 import Footer from "./components/footer/page";
-import UnrollTransition from "./components/UnrollTransition";
 
 const p2 = {
   title: "DabbaNation",
@@ -41,18 +40,23 @@ export default function Home() {
         <Journey />
       </div>
 
-      {/* SECTION 2: THE PINNED TRANSITION & PROJECTS */}
-      {/* This section will take over the screen, pin, and then release */}
-      <UnrollTransition>
-        <div className="project-reveal-item w-full flex justify-center md:justify-start">
-          <ProjectCard {...p2} />
+      {/* SECTION 2: PROJECTS */}
+      <section className="relative z-10 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl md:text-5xl font-sketch text-ink mb-12 md:mb-16 text-center">
+            Featured Projects
+          </h2>
+          <div className="space-y-16 md:space-y-20">
+            <div className="w-full flex justify-center md:justify-start">
+              <ProjectCard {...p2} />
+            </div>
+            <div className="w-full flex justify-center md:justify-end">
+              <ProjectCard {...p3} />
+            </div>
+          </div>
         </div>
-        <div className="project-reveal-item w-full flex justify-center md:justify-end">
-          <ProjectCard {...p3} />
-        </div>
-      </UnrollTransition>
+      </section>
 
-      {/* Ensure Contact/Footer sits on top after the pin releases */}
       <section className="relative z-20 ">
         <Contact />
         <Footer />

@@ -2,9 +2,12 @@
 
 import { useRef, useEffect, useState } from "react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { SketchyBox } from "../ui/SketchyBox";
 import { ArrowUpRight } from "lucide-react";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 interface ProjectProps {
   title: string;
@@ -32,19 +35,44 @@ export default function ProjectCard({
   useGSAP(
     () => {
       const isMobile = window.innerWidth < 768;
-      // Only run floating animation on desktop to save mobile CPU
-      if (!isMobile && containerRef.current) {
-        gsap.to(containerRef.current, {
-          y: -8,
-          rotation: "+=0.5",
-          duration: 3.5,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
+
+      if (containerRef.current) {
+        // Set initial state
+        gsap.set(containerRef.current, {
+          opacity: 0,
+          y: 60,
+          scale: 0.95,
         });
+
+        // Scroll-triggered entrance animation
+        gsap.to(containerRef.current, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 90%",
+            toggleActions: "play none none reset",
+          },
+        });
+
+        // Only run floating animation on desktop to save mobile CPU
+        if (!isMobile) {
+          gsap.to(containerRef.current, {
+            y: -8,
+            rotation: "+=0.5",
+            duration: 3.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: 1.2,
+          });
+        }
       }
     },
-    { scope: containerRef },
+    { scope: containerRef, dependencies: [rotation] },
   );
 
   return (
